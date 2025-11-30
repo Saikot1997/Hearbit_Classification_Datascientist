@@ -1,339 +1,306 @@
-# ECG Heartbeat Classification using Deep Learning
+# ECG Arrhythmia Classification
 
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)](https://www.tensorflow.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+**End-to-end machine learning project for cardiac arrhythmia detection from ECG signals**
 
-> **Difficulty Level**: 8/10 | **Course**: Data Scientist Training Program
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-orange.svg)](https://jupyter.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An end-to-end machine learning project for classifying cardiac signals from ECG data using state-of-the-art deep learning architectures, achieving **99.1% macro average recall** with ResNet1D.
+## 🎯 Project Overview
 
-## 📋 Table of Contents
+This project implements and compares multiple machine learning and deep learning architectures for classifying cardiac arrhythmias from ECG signals. Using the MIT-BIH and PTB datasets, the models achieve **99.1% macro recall** on binary classification—critical for minimizing false negatives in clinical diagnosis.
 
-- [Overview](#overview)
-- [Key Results](#key-results)
-- [Dataset](#dataset)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Model Architectures](#model-architectures)
-- [Results & Performance](#results--performance)
-- [Methodology](#methodology)
-- [Contributing](#contributing)
-- [License](#license)
-- [References](#references)
+### Key Results
 
-## 🎯 Overview
-
-Electrocardiograms (ECGs) capture the electrical activity of the heart and are essential for diagnosing cardiac conditions. This project implements and compares multiple machine learning and deep learning models to classify ECG signals, detecting normal rhythms and various arrhythmia patterns.
-
-### Problem Statement
-
-Develop robust classification models to identify:
-- **MIT-BIH Dataset**: 5 classes of heartbeat patterns (Normal, Supraventricular, Ventricular, Fusion, Unknown)
-- **PTB Dataset**: Binary classification (Normal vs. Abnormal)
-
-### Why This Matters
-
-In medical diagnosis, **false negatives can be fatal**. Our models prioritize **recall** to minimize missed diagnoses while maintaining high overall accuracy.
-
-## 🏆 Key Results
-
-| Model | Dataset | Macro Avg Recall | Accuracy |
-|-------|---------|------------------|----------|
-| **ResNet1D** | MIT-BIH | **91.9%** | 98.2% |
-| **ResNet1D** | PTB | **99.1%** | 99.3% |
+| Model | Dataset | Macro Recall | Accuracy |
+|-------|---------|--------------|----------|
+| **ResNet1D** | **PTB** | **99.1%** | **99.3%** |
+| ResNet1D | MIT-BIH | 91.9% | 98.2% |
+| CNN V2 | MIT-BIH | 86.6% | 98.1% |
 | XGBoost | MIT-BIH | 89.8% | 92.5% |
-| Gradient Boosting | PTB | 98.0% | 98.0% |
 
-> **ResNet1D** consistently outperforms traditional ML methods and simpler CNN architectures across both datasets.
+## 📊 Datasets
 
-## 📊 Dataset
+### MIT-BIH Arrhythmia Database
+- **109,446 samples** across 5 heartbeat classes
+- **Classes**: Normal (N), Supraventricular (S), Ventricular (V), Fusion (F), Unknown (Q)
+- **Challenge**: Severe class imbalance (Normal class >72% of samples)
 
-### Sources
-- **MIT-BIH Arrhythmia Dataset**: 109,446 samples across 5 classes
-- **PTB Diagnostic ECG Database**: 14,552 samples (binary classification)
+### PTB Diagnostic ECG Database
+- **14,552 samples** for binary classification
+- **Classes**: Normal vs. Abnormal heartbeats
+- **More balanced distribution**: ~40/60 split
 
-Both datasets available on [Kaggle](https://www.kaggle.com/shayanfazeli/heartbeat)
+**Dataset Source**: [Kaggle - Heartbeat Dataset](https://www.kaggle.com/shayanfazeli/heartbeat)
 
-### Class Distribution (MIT-BIH)
-
-| Class | Code | Type | Description |
-|-------|------|------|-------------|
-| N | 0 | Normal | Healthy heartbeat |
-| S | 1 | Supraventricular | Pathological |
-| V | 2 | Ventricular | Pathological |
-| F | 3 | Fusion | Pathological |
-| Q | 4 | Unknown | Potentially pathological |
-
-### Preprocessing
-- **Sampling Frequency**: 125 Hz
-- **Imbalance Handling**:
-  - RandomUnderSampler for majority class (N)
-  - SMOTE-Tomek for minority classes
-  - GAN-based oversampling (experimental)
-- **Target**: ~20,000 samples per class for MIT-BIH
-
-## 📁 Project Structure
+## 📁 Repository Structure
 
 ```
-Heartbeat_Classification_Datascientist/
-├── data/
-│   ├── mitbih_train.csv
-│   ├── mitbih_test.csv
-│   ├── ptbdb_normal.csv
-│   └── ptbdb_abnormal.csv
-├── notebooks/
-│   ├── 01_data_exploration.ipynb
-│   ├── 02_preprocessing.ipynb
-│   ├── 03_ml_models.ipynb
-│   └── 04_deep_learning_models.ipynb
-├── src/
-│   ├── models/
-│   │   ├── cnn_v1.py
-│   │   ├── cnn_v2.py
-│   │   └── resnet1d.py
-│   ├── preprocessing/
-│   │   ├── resampling.py
-│   │   └── feature_engineering.py
-│   └── utils/
-│       ├── visualization.py
-│       └── metrics.py
-├── saved_models/
-├── reports/
-│   ├── ECG_Heartbeat_Classification_Report.pdf
-│   └── figures/
-├── requirements.txt
-├── README.md
-└── LICENSE
+Hearbit_Classification_Datascientist/
+│
+├── data/                           # Raw and processed datasets
+│   ├── mitbih_train.csv           # MIT-BIH training data
+│   ├── mitbih_test.csv            # MIT-BIH test data
+│   ├── ptbdb_normal.csv           # PTB normal heartbeats
+│   └── ptbdb_abnormal.csv         # PTB abnormal heartbeats
+│
+├── code_model/                     # MIT-BIH model experiments
+│   ├── CNN.ipynb                  # CNN implementation for MIT-BIH
+│   ├── XGBoost.ipynb              # XGBoost implementation for MIT-BIH
+│   ├── cnn_model.pkl              # Saved CNN model
+│   └── xgb_model.json             # Saved XGBoost model
+│
+├── ML_Models.ipynb                 # Traditional ML baselines (RF, SVM, etc.)
+├── CNN_V1.ipynb                    # Simple CNN architecture
+├── CNN_V2.ipynb                    # Improved CNN with BatchNorm
+├── Restnet1D.ipynb                 # ResNet1D architecture (best model)
+│
+├── cnn_model_v1.pkl               # Saved CNN V1 model
+├── cnn_model_v2.pkl               # Saved CNN V2 model  
+├── restnet1d_model.pkl            # Saved ResNet1D model
+│
+├── ECG Heartbeat Categorization Model report (1).pdf  # Full technical report
+├── ECG_Classification (1).pptx                        # Presentation slides
+│
+└── README.md
 ```
 
-## 🚀 Installation
+## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.8 or higher
-- CUDA-compatible GPU (recommended for deep learning models)
-
-### Setup
 
 ```bash
-# Clone the repository
+Python 3.8+
+Jupyter Notebook or JupyterLab
+```
+
+### Installation
+
+```bash
+# Clone repository
 git clone https://github.com/Saikot1997/Hearbit_Classification_Datascientist.git
 cd Hearbit_Classification_Datascientist
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
 # Install dependencies
-pip install -r requirements.txt
+pip install numpy pandas scikit-learn tensorflow keras xgboost
+pip install matplotlib seaborn imbalanced-learn jupyter
 ```
 
-### Requirements
-```
-tensorflow>=2.8.0
-scikit-learn>=1.0.0
-xgboost>=1.5.0
-catboost>=1.0.0
-imbalanced-learn>=0.9.0
-pandas>=1.3.0
-numpy>=1.21.0
-matplotlib>=3.4.0
-seaborn>=0.11.0
-```
+### Download Dataset
 
-## 💻 Usage
+1. Download from [Kaggle](https://www.kaggle.com/shayanfazeli/heartbeat)
+2. Extract files to `data/` directory:
+   - `mitbih_train.csv`
+   - `mitbih_test.csv`
+   - `ptbdb_normal.csv`
+   - `ptbdb_abnormal.csv`
 
-### 1. Data Preparation
+### Running the Notebooks
 
+**Start with traditional ML baselines:**
 ```bash
-# Download dataset from Kaggle
-kaggle datasets download -d shayanfazeli/heartbeat
-
-# Extract and place in data/ directory
-unzip heartbeat.zip -d data/
+jupyter notebook ML_Models.ipynb
 ```
 
-### 2. Train Models
-
-```python
-# Train ResNet1D on MIT-BIH dataset
-python src/train.py --model resnet1d --dataset mitbih --epochs 50
-
-# Train XGBoost on PTB dataset
-python src/train.py --model xgboost --dataset ptb
+**Progress through deep learning architectures:**
+```bash
+jupyter notebook CNN_V1.ipynb      # Baseline CNN
+jupyter notebook CNN_V2.ipynb      # Improved CNN
+jupyter notebook Restnet1D.ipynb   # Best performing model
 ```
 
-### 3. Evaluate Models
+### Using Pre-trained Models
 
 ```python
-# Evaluate on test set
-python src/evaluate.py --model resnet1d --dataset mitbih --checkpoint saved_models/resnet1d_best.h5
-```
+import pickle
+import numpy as np
 
-### 4. Make Predictions
+# Load trained model
+with open('restnet1d_model.pkl', 'rb') as f:
+    model = pickle.load(f)
 
-```python
-from src.models.resnet1d import ResNet1D
-from src.preprocessing import load_and_preprocess
-
-# Load model
-model = ResNet1D.load('saved_models/resnet1d_best.h5')
+# Prepare ECG signal (187 features)
+ecg_signal = np.array([...])  # Your ECG data
+ecg_signal = ecg_signal.reshape(1, -1)
 
 # Predict
-ecg_signal = load_and_preprocess('path/to/ecg_signal.csv')
 prediction = model.predict(ecg_signal)
+predicted_class = np.argmax(prediction)
 ```
 
 ## 🧠 Model Architectures
 
-### 1. **CNN v1** (Baseline)
-- 3 Convolutional layers with MaxPooling
-- Simple architecture for baseline comparison
+### 1. Traditional ML Models (`ML_Models.ipynb`)
 
-### 2. **CNN v2** (Enhanced)
-- Built on CNN v1
-- Added Batch Normalization
-- Dropout layers for regularization
-- Improved generalization
+Baseline classifiers for comparison:
+- **Random Forest**
+- **Support Vector Machine (SVM)**
+- **XGBoost** (best traditional ML: 89.8% recall)
+- **Gradient Boosting**
+- **Logistic Regression**
 
-### 3. **ResNet1D** (Best Performer) ⭐
-- Adapted from ResNet-18 architecture
-- 1D convolutions for time-series data
-- Residual connections to prevent vanishing gradients
-- Dropout before final fully connected layer
-- **Architecture highlights**:
-  - Input: 187-dimensional ECG signal
-  - Residual blocks with skip connections
-  - Global Average Pooling
-  - Dense layer with softmax activation
+### 2. CNN V1 (`CNN_V1.ipynb`)
 
-### 4. **XGBoost** (ML Baseline)
-- Gradient boosting framework
-- Optimized hyperparameters via RandomizedSearchCV
-- Strong performance for comparison
+Simple convolutional baseline:
+- 3 convolutional layers with MaxPooling
+- Dense layers for classification
+- **Result**: 82.8% macro recall
 
-## 📈 Results & Performance
+### 3. CNN V2 (`CNN_V2.ipynb`)
 
-### MIT-BIH Dataset (5-Class Classification)
+Enhanced architecture with regularization:
+- Added **Batch Normalization** after conv layers
+- **Dropout** layers (0.3-0.5) to prevent overfitting
+- Improved activation functions
+- **Result**: 86.6% macro recall (MIT-BIH)
 
-#### Model Comparison
+### 4. ResNet1D (`Restnet1D.ipynb`) ⭐ Best Model
 
-| Model | Macro Avg Recall | Accuracy | Training Time |
-|-------|------------------|----------|---------------|
-| CNN v1 | 82.8% | 97.6% | ~15 min |
-| CNN v2 | 86.6% | 98.1% | ~20 min |
-| **ResNet1D** | **91.9%** | **98.2%** | ~30 min |
-| XGBoost | 89.8% | 92.5% | ~10 min |
+Adapted ResNet architecture for 1D time-series:
+- **Residual blocks** with skip connections
+- Prevents vanishing gradients in deep networks
+- Global Average Pooling before final classification
+- **Results**:
+  - MIT-BIH: 91.9% macro recall, 98.2% accuracy
+  - PTB: **99.1% macro recall, 99.3% accuracy**
 
-#### ResNet1D Confusion Matrix (MIT-BIH)
+**Why ResNet1D performs best:**
+- Skip connections enable deeper networks
+- Better gradient flow during training
+- Captures both short and long-term temporal patterns in ECG signals
+
+## 📈 Detailed Results
+
+### Confusion Matrix (MIT-BIH - ResNet1D)
+
 ```
-Predicted →   N      S      V      F      Q
-Actual ↓
-N          17890    42    105     15     65
-S             23   481     38      3     11
-V             45    28   1342     12     21
-F             10     5     18    122      7
-Q             38    12     22      8   1528
+              Predicted
+           N      S      V      F      Q
+Actual N   17890  42     105    15     65
+       S   23     481    38     3      11
+       V   45     28     1342   12     21
+       F   10     5      18     122    7
+       Q   38     12     22     8      1528
 ```
+
+**Key Insight**: Model maintains high recall across minority classes (S, V, F, Q), which is critical for detecting rare but dangerous arrhythmias.
+
+### Per-Class Performance (MIT-BIH)
+
+| Class | Precision | Recall | F1-Score | Support |
+|-------|-----------|--------|----------|---------|
+| N (Normal) | 99.4% | 98.9% | 99.1% | 18117 |
+| S (Supraventricular) | 84.4% | 86.5% | 85.4% | 556 |
+| V (Ventricular) | 87.8% | 93.1% | 90.4% | 1448 |
+| F (Fusion) | 75.9% | 75.3% | 75.6% | 162 |
+| Q (Unknown) | 93.6% | 95.5% | 94.5% | 1608 |
 
 ### PTB Dataset (Binary Classification)
 
-#### Model Comparison
+All models achieve >96% performance on this more balanced dataset:
 
-| Model | Macro Avg Recall | Precision | F1-Score |
-|-------|------------------|-----------|----------|
-| **ResNet1D** | **99.1%** | 99.3% | 99.2% |
-| CNN v2 | 97.5% | 97.6% | 97.5% |
-| Gradient Boosting | 98.0% | 98.0% | 98.0% |
+| Model | Macro Recall | Precision | Accuracy |
+|-------|-------------|-----------|----------|
+| ResNet1D | 99.1% | 99.3% | 99.3% |
+| CNN V2 | 97.5% | 97.6% | 97.6% |
 | XGBoost | 98.0% | 98.0% | 98.0% |
-| CNN v1 | 96.0% | 97.0% | 96.4% |
 
-#### Transfer Learning Success
-Pre-trained CNN v2 from MIT-BIH successfully adapted to PTB dataset with minimal modifications, demonstrating excellent **transfer learning** capabilities.
+## 🔧 Methodology
 
-## 🔬 Methodology
+### Data Preprocessing
 
-### 1. **Data Exploration**
-- Analyzed class distribution and imbalance
-- Visualized ECG signal patterns
-- Identified sampling frequency (125 Hz)
+**Class Imbalance Handling** (MIT-BIH):
+- **RandomUnderSampler**: Reduce majority class (Normal) samples
+- **SMOTE-Tomek**: Generate synthetic samples for minority classes
+- **Target**: ~20,000 samples per class for balanced training
 
-### 2. **Preprocessing**
-- **Imbalance Handling**:
-  - RandomUnderSampler for majority class
-  - SMOTE-Tomek for synthetic minority oversampling
-  - GAN-based augmentation (experimental)
-- Feature scaling with StandardScaler
+**Feature Engineering**:
+- StandardScaler normalization
 - Signal segmentation by heartbeat
+- Feature extraction from time-series
 
-### 3. **Model Development**
-- **Traditional ML**: Random Forest, SVM, XGBoost, Gradient Boosting, etc.
-- **Deep Learning**: CNN variants and ResNet1D
-- **Hyperparameter Tuning**: GridSearchCV and RandomizedSearchCV
+### Training Strategy
 
-### 4. **Evaluation Metrics**
-- **Primary**: Macro Average Recall (prioritizes minority classes)
-- **Secondary**: Accuracy, Precision, F1-Score
-- **Rationale**: In medical diagnosis, missing a disease is more critical than false alarms
+- **Loss Function**: Weighted CrossEntropyLoss (inverse class frequency)
+- **Optimizer**: Adam with learning rate scheduling
+- **Batch Size**: 64-128
+- **Epochs**: 30-50 with early stopping
+- **Validation Split**: 20% of training data
 
-### 5. **Transfer Learning**
-- Pre-trained CNN v2 on MIT-BIH (5 classes)
-- Fine-tuned for PTB dataset (binary classification)
-- Modified output layer and preprocessing pipeline
+### Evaluation Metrics
 
-## 📊 Key Findings
+**Primary**: **Macro Average Recall**
+- Treats all classes equally regardless of frequency
+- Critical for detecting rare arrhythmias
+- Prioritizes minimizing false negatives
 
-1. **Deep Learning Superiority**: ResNet1D outperforms all traditional ML models
-2. **Recall Priority**: Macro average recall ensures balanced performance across all classes
-3. **Transfer Learning Effectiveness**: Models trained on MIT-BIH successfully adapt to PTB
-4. **Batch Normalization Impact**: CNN v2 shows significant improvement over CNN v1
-5. **Imbalance Handling**: SMOTE-Tomek effectively addresses class imbalance
+**Why recall over accuracy?**  
+In medical diagnosis, missing a disease (false negative) is more dangerous than a false alarm. A model with 99% accuracy but low recall for dangerous arrhythmias is clinically useless.
 
-## 🔮 Future Work
+**Secondary Metrics**:
+- Accuracy (overall correctness)
+- Precision (false positive rate)
+- F1-Score (harmonic mean)
+- Confusion matrix analysis
 
-- [ ] Implement attention mechanisms for interpretability
-- [ ] Explore transformer-based architectures
-- [ ] Real-time ECG classification system
-- [ ] Multi-lead ECG signal processing
-- [ ] Ensemble methods combining top models
-- [ ] Model deployment with Flask/FastAPI
-- [ ] Mobile application integration
+## 📄 Documentation
 
-## 🤝 Contributing
+- **[Technical Report](ECG%20Heartbeat%20Categorization%20Model%20report%20(1).pdf)**: Detailed methodology, experiments, and results
+- **[Presentation](ECG_Classification%20(1).pptx)**: High-level overview and key findings
 
-Contributions are welcome! Please follow these steps:
+## 🔬 Key Findings
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. **Deep learning significantly outperforms traditional ML** for raw ECG signal classification
+2. **Residual connections are crucial** - ResNet1D outperforms CNNs by 5-6% in recall
+3. **Class imbalance requires sophisticated handling** - SMOTE-Tomek works well for time-series data
+4. **Batch normalization improves generalization** - CNN V2 shows 4% improvement over V1
+5. **Transfer learning is viable** - Models trained on MIT-BIH can adapt to PTB dataset
+6. **Binary classification is easier** - All models achieve >96% on PTB vs 82-92% on MIT-BIH
+
+## 🛠️ Technology Stack
+
+- **Deep Learning**: TensorFlow/Keras
+- **ML Libraries**: Scikit-learn, XGBoost
+- **Imbalance Handling**: imbalanced-learn (SMOTE, Tomek links)
+- **Data Processing**: Pandas, NumPy
+- **Visualization**: Matplotlib, Seaborn
+- **Development**: Jupyter Notebook
+
+## 🔮 Future Enhancements
+
+- [ ] Implement attention mechanisms for model interpretability
+- [ ] Explore Transformer architectures (ECG-Former, Time Series Transformer)
+- [ ] Multi-lead ECG processing (12-lead ECGs)
+- [ ] Real-time classification system with streaming data
+- [ ] Model deployment with FastAPI + Docker
+- [ ] MLflow integration for experiment tracking
+- [ ] Hyperparameter optimization with Optuna
+- [ ] Grad-CAM visualization for clinical explainability
+
+## 📚 Learning Resources
+
+- **MIT-BIH Database**: [PhysioNet](https://physionet.org/content/mitdb/1.0.0/)
+- **PTB Database**: [PhysioNet](https://physionet.org/content/ptbdb/1.0.0/)
+- **ResNet Paper**: [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)
+- **SMOTE Paper**: [Synthetic Minority Over-sampling Technique](https://arxiv.org/abs/1106.1813)
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👥 Authors
-
-- **Saikot** - [GitHub](https://github.com/Saikot1997)
+This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
 
 ## 🙏 Acknowledgments
 
-- [MIT-BIH Arrhythmia Database](https://physionet.org/content/mitdb/1.0.0/)
-- [PTB Diagnostic ECG Database](https://physionet.org/content/ptbdb/1.0.0/)
-- Kaggle community for dataset compilation
-- Data Scientist training course instructors
+- **PhysioNet** for providing the MIT-BIH and PTB databases
+- **Kaggle community** for dataset compilation and preprocessing
+- **DataScientest training program** for project guidance
 
-## 📚 References
+## 📧 Contact
 
-1. [Analytics Vidhya - ANN with 1-D ECG Data](https://www.analyticsvidhya.com/blog/2021/07/artificial-neural-network-simplified-with-1-d-ecg-biomedical-data/)
-2. [DataSci - ECG Research Solutions](https://www.datasci.com/solutions/cardiovascular/ecg-research/)
-3. He, K., et al. (2016). Deep Residual Learning for Image Recognition. CVPR.
-4. Chawla, N. V., et al. (2002). SMOTE: Synthetic Minority Over-sampling Technique. JAIR.
+**Saikot Das Joy**
+- 📧 Email: saikotavi@gmail.com
+- 💼 LinkedIn: [saikot-das-joy](https://linkedin.com/in/saikot-das-joy)
+- 🐙 GitHub: [@Saikot1997](https://github.com/Saikot1997)
 
 ---
 
-⭐ If you find this project helpful, please consider giving it a star!
-
-For questions or collaboration, feel free to open an issue or contact via [GitHub](https://github.com/Saikot1997).
+⭐ **If you find this project helpful, please consider starring the repository!**
